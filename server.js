@@ -19,8 +19,11 @@ wsServer.on('request', (req) => {
 
     connection.on('message', (mes) => {
         connections.forEach(element => {
-            if(element != connection)
+            if(element != connection){
+            	console.log("connection: ", element.remoteAddress);
+            	console.log("message: ", mes);
                 element.sendUTF(mes.utf8Data);
+            }
         });
     });
 
