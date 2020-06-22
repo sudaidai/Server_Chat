@@ -107,7 +107,7 @@ wsServer.on('request', (req) => {
                             var vTableInfo =
                             {
                                 type: 'utf8',
-                                utf8Data: `{"kind":"joinRoom","joinBoolean":${BooleanHas},"otherPeople":"${JSON.stringify(table[i])}"}`
+                                utf8Data: `{"kind":"joinRoom","joinBoolean":${BooleanHas},"otherPeople":${JSON.stringify(table[i])}}`
                             }
                             console.log(JSON.stringify(table[i]));
                             console.log("---------------");
