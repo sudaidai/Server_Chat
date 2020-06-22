@@ -24,57 +24,79 @@ wsServer.on('request', (req) => {
         console.log(JSON.parse(mes.utf8Data).kind);
         switch (JSON.parse(mes.utf8Data).kind) {
             case "room":
-                do {
-                    /**生成文字 */
-                    roomString = "";
-                    var roomNumber = Math.round((Math.random() * 3));
-                    if (roomNumber.toString().length < 4) {
-                        var diff = 4 - roomNumber.toString().length;
-                        for (i = 0; i < diff; i++) {
-                            roomString += 0;
+                if (JSON.parse(mes.utf8Data).roomNum.length < 4) {
+                    do {
+                        /**生成文字 */
+                        roomString = "";
+                        var roomNumber = Math.round((Math.random() * 3));
+                        if (roomNumber.toString().length < 4) {
+                            var diff = 4 - roomNumber.toString().length;
+                            for (i = 0; i < diff; i++) {
+                                roomString += 0;
+                            }
                         }
-                    }
-                    roomString += roomNumber;
-                    console.log(roomString);
+                        roomString += roomNumber;
+                        var boolean = false;
+                        table.forEach(element => {
+                            console.log(roomString);
+                            if (element.roomNumber == roomString) {
+                                boolean = true;
+                            }
+                        });
 
-                    var boolean = false;
+                    } while (boolean);
+
+                    table[tableNum] = {};
+                    table[tableNum].roomNumber = roomString;
+                    table[tableNum].ip = [];
+                    table[tableNum].ip.push(connection.remoteAddress);
+                    tableNum = tableNum + 1;
+                    console.log(table);
+                    var vTableInfo =
+                    {
+                        type: 'utf8',
+                        utf8Data: `{"kind":"room","roomNum":"${roomString}"}`
+                    }
+                    connections.forEach(element => {
+                        if (element == connection) {
+                            console.log("connection: ", element.remoteAddress);
+                            console.log("room: ", vTableInfo);
+                            element.sendUTF(vTableInfo.utf8Data);
+                        }
+                    });
+                    // table.includes(roomString)
+                } else {
+                    console.log("按下加入按紐"); 
+                    var BooleanHas = false;
                     table.forEach(element => {
-                        console.log("element : " + element.roomNumber);
-                        console.log("element : " + element);
-                        console.log(roomString);
-                        if (element.roomNumber == roomString) {
-                            boolean = true;
+                        if (element.roomNumber == JSON.parse(mes.utf8Data).roomNum) {
+                            element.ip.push(connection.remoteAddress);
+                            BooleanHas = true;
+
                         }
                     });
 
-                } while (boolean);
-                // table.push(roomString);
-
-
-                table[tableNum] = {};
-                table[tableNum].roomNumber = roomString;
-                table[tableNum].ip = [];
-                table[tableNum].ip.push(connection.remoteAddress);
-
-                tableNum = tableNum + 1;
-                console.log(table);
-
-
-                var vTableInfo;
-                vTableInfo =
-                {
-                    type: 'utf8',
-                    utf8Data: `{"kind":"room","roomNum":"${roomString}"}`
-                }
-                connections.forEach(element => {
-                    if (element == connection) {
-                        console.log("connection: ", element.remoteAddress);
-                        console.log("room: ", vTableInfo);
-                        element.sendUTF(vTableInfo.utf8Data);
+                    var vTableInfo =
+                    {
+                        type: 'utf8',
+                        utf8Data: `{"kind":"roomJoin","roomNum":"${BooleanHas}"}`
                     }
-                });
-                // table.includes(roomString)
 
+                    if (BooleanHas) {
+                        console.log("加入房間");                                          
+                    } else {
+                        console.log("查無此房間");
+                    }
+
+                    connections.forEach(element => {
+                        if (element == connection) {
+                            console.log("connection: ", element.remoteAddress);
+                            console.log("room: ", vTableInfo);
+                            element.sendUTF(vTableInfo.utf8Data);
+                        }
+                    });
+
+                }
 
                 break;
             default:
