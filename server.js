@@ -84,40 +84,27 @@ wsServer.on('request', (req) => {
                 var roomNum = JSON.parse(mes.utf8Data).roomNum; // 輸入的房間號碼
                 var name = JSON.parse(mes.utf8Data).USER; // 輸入的USER
                 var BooleanHas = false;
+                var tableJoin ; 
 
-
-                /**如果有房間就add IP 跟 name */
-                var i = -1;
-                if (table.length > 0) {
-                    do {
-                        i = i + 1;
-                        if (table[i].roomNumber == roomNum) {
-                            table[i].ip.push(connection.remoteAddress);
-                            table[i].name.push(name);
-                            BooleanHas = true;
-                        }
-
-                    } while (!BooleanHas);
-                }
-
-
-                // table.forEach(element => {
-                //     if (element.roomNumber == roomNum) {
-                //         element.ip.push(connection.remoteAddress);
-                //         BooleanHas = true;
-                //     }
-                // });
-
+                /**檢查是否有此桌號 */
+                table.forEach(element => {
+                    if (element.roomNumber == roomNum) {
+                        element.ip.push(connection.remoteAddress);
+                        element.name.push(name);
+                        BooleanHas = true;
+                        tableJoin = element ; 
+                    }
+                });
 
                 if (BooleanHas) {
                     console.log("加入房間");
-                    /**發送回自己手上 */
+                    /**發送給此桌的人(包括自己) */
                     connections.forEach(element => {
-                        if (table[i].ip.indexOf(element.remoteAddress) != -1) {
+                        if (tableJoin.ip.indexOf(element.remoteAddress) != -1) {
                             var vTableInfo =
                             {
                                 type: 'utf8',
-                                utf8Data: `{"kind":"joinRoom","joinBoolean":${BooleanHas},"otherPeople":${JSON.stringify(table[i])}}`
+                                utf8Data: `{"kind":"joinRoom","joinBoolean":${BooleanHas},"otherPeople":${JSON.stringify(tableJoin)}}`
                             }
                             console.log("---------------        RECEIVE        ---------------");
                             console.log(vTableInfo.utf8Data);
@@ -142,23 +129,23 @@ wsServer.on('request', (req) => {
                     });
                 }
 
-            // /**發送給同桌的人 */
-            // connections.forEach(element => {
-            //     if (table[i].ip.indexOf(element.remoteAddress) != -1 ) {
+                // /**發送給同桌的人 */
+                // connections.forEach(element => {
+                //     if (table[i].ip.indexOf(element.remoteAddress) != -1 ) {
 
-            //         console.log("---------------        發送給同桌的人        ---------------");
-            //         console.log("---------------        RECEIVE        ---------------");
-            //         console.log(table[i].ip);
-            //         var vTableInfo =
-            //         {
-            //             type: 'utf8',
-            //             utf8Data: `{"kind":"joinRoom","joinBoolean":${BooleanHas},"otherPeople":${JSON.stringify(table[i])}}`
-            //         }
-            //         console.log(vTableInfo.utf8Data);
-            //         element.sendUTF(vTableInfo.utf8Data);
-            //     }
-            // });
-            // break;
+                //         console.log("---------------        發送給同桌的人        ---------------");
+                //         console.log("---------------        RECEIVE        ---------------");
+                //         console.log(table[i].ip);
+                //         var vTableInfo =
+                //         {
+                //             type: 'utf8',
+                //             utf8Data: `{"kind":"joinRoom","joinBoolean":${BooleanHas},"otherPeople":${JSON.stringify(table[i])}}`
+                //         }
+                //         console.log(vTableInfo.utf8Data);
+                //         element.sendUTF(vTableInfo.utf8Data);
+                //     }
+                // });
+                break;
             default:
                 connections.forEach(element => {
                     if (element != connection && table[i].ip.indexOf(element.remoteAddress) != -1) {
