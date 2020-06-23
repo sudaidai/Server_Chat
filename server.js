@@ -61,7 +61,7 @@ wsServer.on('request', (req) => {
                 table[tableNum].ip.push(connection.remoteAddress);
                 table[tableNum].name = [];
                 table[tableNum].name.push(JSON.parse(mes.utf8Data).USER);//玩家名稱
-
+                table[tableNum].roomerName = JSON.parse(mes.utf8Data).USER;
                 tableNum = tableNum + 1;
 
                 var vTableInfo =
