@@ -147,8 +147,27 @@ wsServer.on('request', (req) => {
                 // });
                 break;
             default:
+                /**需要知道自己是幾桌的 */
+                /**發送完全一樣的消息給桌上所有人 */
+                var tableJoin ; /**告訴我這傢伙幾桌的 */
+                table.forEach(element => {
+                    console.log(element);
+
+                    var idx = element.ip.indexOf(connection.remoteAddress);
+                    while (idx != -1) {
+                        console.log("ipl1 : " + element.name.indexOf(JSON.parse(mes.utf8Data).USER));
+                        if(idx == element.name.indexOf(JSON.parse(mes.utf8Data).USER)){
+                            tableJoin = element;
+                        }
+                      idx = element.ip.indexOf(connection.remoteAddress , idx + 1);
+                    }
+                }) 
+
+                // console.log(tableJoin.roomNumber);
+
                 connections.forEach(element => {
-                    if (element != connection && table[i].ip.indexOf(element.remoteAddress) != -1) {
+
+                    if (element != connection && tableJoin.ip.indexOf(element.remoteAddress) != -1) {
                         console.log("connection: ", element.remoteAddress);
                         console.log("message: ", mes);
                         element.sendUTF(mes.utf8Data);
